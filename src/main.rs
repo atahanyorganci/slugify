@@ -8,12 +8,15 @@ use clap::Parser;
 use slug;
 
 #[derive(Parser, Debug)]
-#[command(version, about)]
+#[command(version, about, long_about = None)]
 struct Cli {
+    /// The input string to slugify or '-' to read from stdin
     input: String,
     #[clap(short, long)]
+    /// The delimiter to use defaults to '-'
     delim: Option<char>,
     #[clap(short, long)]
+    /// Treat the input as a path and slugify each part except the extension
     path: bool,
 }
 
