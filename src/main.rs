@@ -1,4 +1,8 @@
-use std::path::{Component, Path, MAIN_SEPARATOR};
+use std::{
+    error::Error,
+    io::Read,
+    path::{Component, Path, MAIN_SEPARATOR},
+};
 
 use clap::Parser;
 use slug;
@@ -20,6 +24,7 @@ fn slugify(input: &str, delim: Option<char>) -> String {
         _ => result,
     }
 }
+
 fn slugify_path(path: &Path, delim: Option<char>) {
     let parts = path.components().collect::<Vec<_>>();
     let count = parts.len();
@@ -55,10 +60,23 @@ fn slugify_path(path: &Path, delim: Option<char>) {
     println!();
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     let Cli { input, delim, path } = Cli::parse();
     if input == "-" {
-        todo!("Read from stdin")
+        let mut buf = Vec::new();
+        let read = std::io::stdin().lock().read_to_end(&mut buf)?;
+        if read == 0 {
+            return Ok(());
+        }
+        let input = String::from_utf8(buf)?;
+        for line in input.lines() {
+            if path {
+                let path = Path::new(line);
+                slugify_path(path, delim);
+            } else {
+                println!("{}", slugify(line, delim));
+            }
+        }
     } else {
         if path {
             let path = Path::new(&input);
@@ -67,4 +85,5 @@ fn main() {
             println!("{}", slugify(&input, delim));
         }
     }
+    Ok(())
 }
