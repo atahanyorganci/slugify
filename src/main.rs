@@ -1,3 +1,7 @@
+use slug::slugify;
+
 fn main() {
-    println!("Hello, world!");
+    let str = "Hello world";
+    let slug = slugify(str);
+    println!("{str} -> {slug}");
 }
